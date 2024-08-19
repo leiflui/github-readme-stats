@@ -66,7 +66,27 @@ const fetcher = (variables, token) => {
  * @returns {Promise<TopLangData>} Top languages data.
  */
 // Add this function before the reduce method
+function convertJupyterToPython(language) {
+  return language === "Jupyter Notebook" ? "Python" : language;
+}
 
+const topLangs = data
+  .sort((a, b) => b.size - a.size)
+  .reduce((acc, curr) => {
+    const langName = convertJupyterToPython(curr.language);
+
+    if (langName === null) return acc;
+
+    const existingLang = acc.find((lang) => lang.name === langName);
+
+    if (existingLang) {
+      existingLang.size += curr.size;
+    } else {
+      acc.push({ name: langName, size: curr.size });
+    }
+
+    return acc;
+  }, []);
 const fetchTopLanguages = async (
   username,
   exclude_repo = [],
